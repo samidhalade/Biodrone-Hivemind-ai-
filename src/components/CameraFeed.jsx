@@ -4,18 +4,31 @@ export default function CameraFeed() {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    let stream;
+
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        stream = await navigator.mediaDevices.getUserMedia({
           video: true,
         });
-        videoRef.current.srcObject = stream;
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
       } catch (err) {
         console.error("Camera access denied:", err);
       }
     };
 
     startCamera();
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+
+        console.log("Camera stopped");
+      }
+    };
   }, []);
 
   return (
